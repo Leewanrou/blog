@@ -4,6 +4,7 @@ from django.db.models.query_utils import Q
 from article.models import Article, Comment
 from article.forms import ArticleForm
 
+
 # Create your views here.
 def article(request):
     '''
