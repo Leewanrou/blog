@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.db.models.query_utils import Q
 from article.models import Article, Comment
 from article.forms import ArticleForm
+from django.contrib.auth.decorators import login_required
+from main.views import admin_required
 
 
 # Create your views here.
@@ -15,7 +17,7 @@ def article(request):
         articles.update({article:Comment.objects.filter(article=article)})
     context = {'articles':articles}
     return render(request, 'article/article.html', context)
-
+@admin_required
 def articleCreate(request):
     '''
     Create a new article instance
@@ -49,7 +51,7 @@ def articleRead(request, articleId):
         'comments': Comment.objects.filter(article=article)
     }
     return render(request, 'article/articleRead.html', context)
-
+@admin_required
 def articleUpdate(request, articleId):
     '''
     Update the article instance:
@@ -72,7 +74,7 @@ def articleUpdate(request, articleId):
     articleForm.save()
     messages.success(request, '文章已修改') 
     return redirect('article:articleRead', articleId=articleId)
-
+@admin_required
 def articleDelete(request, articleId):
     '''
     Delete the article instance:
@@ -99,7 +101,7 @@ def articleSearch(request):
                                       Q(content__icontains=searchTerm))
     context = {'articles':articles, 'searchTerm':searchTerm} 
     return render(request, 'article/articleSearch.html', context)
-
+@login_required
 def articleLike(request, articleId):
     '''
     Add the user to the 'likes' field:
@@ -111,7 +113,7 @@ def articleLike(request, articleId):
     if request.user not in article.likes.all():
         article.likes.add(request.user)
     return articleRead(request, articleId)
-
+@login_required
 def commentCreate(request, articleId):
     '''
     Create a comment for an article:
@@ -131,7 +133,7 @@ def commentCreate(request, articleId):
     article = get_object_or_404(Article, id=articleId)
     Comment.objects.create(article=article, user=request.user, content=comment)
     return redirect('article:articleRead', articleId=articleId)
-
+@login_required
 def commentUpdate(request, commentId):
     '''
     Update a comment:
@@ -157,7 +159,7 @@ def commentUpdate(request, commentId):
         commentToUpdate.content = comment
         commentToUpdate.save()
     return redirect('article:articleRead', articleId=article.id)
-
+@login_required
 def commentDelete(request, commentId):
     '''
     Delete a comment:
